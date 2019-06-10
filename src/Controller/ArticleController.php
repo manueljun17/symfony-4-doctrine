@@ -12,6 +12,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Twig\Environment;
 use App\Repository\ArticleRepository;
+use Doctrine\ORM\EntityManagerInterface;
 
 class ArticleController extends AbstractController
 {
@@ -57,9 +58,12 @@ class ArticleController extends AbstractController
     /**
      * @Route("/news/{slug}/heart", name="article_toggle_heart", methods={"POST"})
      */
-    public function toggleArticleHeart($slug, LoggerInterface $logger) {
-        //TODO - actually heart/unheart the article!
+    public function toggleArticleHeart(Article $article, LoggerInterface $logger, EntityManagerInterface $em)
+    { 
+        $article->incrementHeartCount();
+        $em->flush();
+
         $logger->info("Article is being hearted");
-        return $this->json(['hearts' => rand(5, 100)]);
+        return new JsonResponse(['hearts' => $article->getHeartCount()]);
     }
 }
